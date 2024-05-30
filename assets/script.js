@@ -21,13 +21,21 @@ const slides = [
 // Index du slide actuel
 let currentIndex = 0;
 
+// Variables pour les éléments du DOM
+const bannerImg = document.querySelector('.banner-img');
+const taglineContainer = document.getElementById('tagline-container');
+const dotsContainer = document.querySelector('.dots');
+const arrows = document.querySelectorAll('.arrow');
+// const allDots = document.querySelectorAll('.dot');
+
 // Fonction pour mettre à jour le slide avec l'index actuel
 function updateSlide() {
     const slide = slides[currentIndex];
     // Met à jour l'image du banner
-    document.querySelector('.banner-img').src = `./assets/images/slideshow/${slide.image}`;
-    // Met à jour le tagline
-    document.getElementById('tagline').innerHTML = slide.tagLine;
+    bannerImg.src = `./assets/images/slideshow/${slide.image}`;
+    // Met à jour le tagline en utilisant insertAdjacentHTML()
+    taglineContainer.innerHTML = '';
+    taglineContainer.insertAdjacentHTML('beforeend', `<p id="tagline">${slide.tagLine}</p>`);
     // Met à jour la classe sélectionnée pour les points de navigation
     document.querySelectorAll('.dot').forEach((dot, index) => {
         dot.classList.toggle('dot_selected', index === currentIndex);
@@ -35,23 +43,32 @@ function updateSlide() {
 }
 
 // Ajoute un écouteur d'événement pour chaque flèche
-document.querySelectorAll('.arrow').forEach(arrow => {
+arrows.forEach(arrow => {
     arrow.addEventListener("click", () => {
         // Détermine la direction de la navigation en fonction de la classe de la flèche
         const direction = arrow.classList.contains('arrow_right') ? 1 : -1;
-        // Calcule le nouvel index du slide en utilisant le modulo pour boucler entre les slides
-        currentIndex = (currentIndex + direction + slides.length) % slides.length;
+        // Calcule le nouvel index du slide sans utiliser le modulo
+        currentIndex += direction;
+        if (currentIndex < 0) {
+            currentIndex = slides.length - 1;
+        } else if (currentIndex >= slides.length) {
+            currentIndex = 0;
+        }
         // Met à jour le slide
         updateSlide();
     });
 });
 
+// Initialise les points de navigation
+slides.forEach((slide, index) => {
+    const dotHTML = `<div class="dot${index === 0 ? ' dot_selected' : ''}"></div>`;
+    dotsContainer.insertAdjacentHTML('beforeend', dotHTML);
+});
+
 // Ajoute un écouteur d'événement pour chaque point de navigation
-document.querySelectorAll('.dot').forEach((dot, index) => {
+dotsContainer.querySelectorAll('.dot').forEach((dot, index) => {
     dot.addEventListener('click', () => {
-        // Met à jour l'index du slide avec celui du point cliqué
         currentIndex = index;
-        // Met à jour le slide
         updateSlide();
     });
 });
